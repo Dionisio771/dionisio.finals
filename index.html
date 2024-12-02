@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session Demo</title>
+  <style>
+    /* General Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #ebe98c;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background: white;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    h1, h2 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    label {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    input {
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+      width: 100%;
+    }
+
+    button {
+      padding: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      background-color: #ff9100;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #a57272;
+    }
+
+    .logout {
+      background-color: #ff9100;
+    }
+
+    .logout:hover {
+      background-color:#a57272;
+    }
+
+    .error {
+      color: #dc3545;
+      margin-top: -10px;
+      font-size: 14px;
+    }
+
+    ul {
+      list-style-type: disc;
+      padding: 0;
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    ul li {
+      background: #f8f9fa;
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="loginContainer">
+    <h1>Login </h1>
+    <form id="loginForm">
+      
+      <input type="text" id="username" placeholder="Enter your username" required>
+      
+      <input type="password" id="password" placeholder="Enter your password" required>
+      <button type="submit">Login</button>
+    </form>
+    <p id="errorMessage" class="error"></p>
+  </div>
+
+  <div class="container" id="homeContainer" style="display: none;">
+    
+    <form id="stringForm">
+      <label for="userInput">Enter a String:</label>
+      <input type="text" id="userInput" placeholder="Enter a String" required>
+      <button type="submit">Submit</button>
+    </form>
+    <h2>Submitted Strings:</h2>
+    <ul id="stringList"></ul>
+    <button id="logout" class="logout">Logout</button>
+  </div>
+
+  <script>
+    
+    document.addEventListener("DOMContentLoaded", () => {
+      const loginContainer = document.getElementById("loginContainer");
+      const homeContainer = document.getElementById("homeContainer");
+
+      
+      if (sessionStorage.getItem("loggedIn")) {
+        loginContainer.style.display = "none";
+        homeContainer.style.display = "block";
+        loadStrings();
+      }
+
+      
+      const loginForm = document.getElementById("loginForm");
+      loginForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        if ((username === "admin" && password === "12345") || (username === "client" && password === "123456")) {
+          sessionStorage.setItem("loggedIn", "true");
+          sessionStorage.setItem("strings", JSON.stringify([])); 
+          loginContainer.style.display = "none";
+          homeContainer.style.display = "block";
+          loadStrings();
+        } else {
+          document.getElementById("errorMessage").innerText = "Invalid credentials. Try again.";
+        }
+      });
+
+      const logoutButton = document.getElementById("logout");
+      logoutButton.addEventListener("click", () => {
+        sessionStorage.clear();
+        loginContainer.style.display = "block";
+        homeContainer.style.display = "none";
+      });
+
+      const stringForm = document.getElementById("stringForm");
+      const stringList = document.getElementById("stringList");
+      stringForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const userInput = document.getElementById("userInput").value;
+
+        const strings = JSON.parse(sessionStorage.getItem("strings") || "[]");
+        strings.push(userInput);
+        sessionStorage.setItem("strings", JSON.stringify(strings));
+
+        addStringToList(userInput);
+        document.getElementById("userInput").value = "";
+      });
+
+      function loadStrings() {
+        const strings = JSON.parse(sessionStorage.getItem("strings") || "[]");
+        strings.forEach(addStringToList);
+      }
+
+      function addStringToList(string) {
+        const li = document.createElement("li");
+        li.textContent = string;
+        stringList.appendChild(li);
+      }
+    });
+  </script>
+</body>
+</html>
